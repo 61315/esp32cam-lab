@@ -7,6 +7,9 @@ const char asd      = 3;
 
 void setup() {
     pinMode(flashPin, OUTPUT);
+
+    Serial.begin(115200);
+    Serial.println("Hello!");
 }
 
 void loop() {
@@ -14,4 +17,6 @@ void loop() {
     delay(1000);
     digitalWrite(flashPin, LOW);
     delay(1000);
+
+    Serial.println("World!");
 }
