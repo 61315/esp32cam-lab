@@ -1,3 +1,7 @@
+# esp32cam-lab
+
+![schematics](schematics.png)
+
 ## system_info
 
 ```
