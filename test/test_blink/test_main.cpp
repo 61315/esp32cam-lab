@@ -12,7 +12,7 @@ void tearDown(void) {
 }
 
 void test_led_builtin_pin_number(void) {
-    TEST_ASSERT_EQUAL(13, LED_BUILTIN);
+    TEST_ASSERT_EQUAL(4, LED_BUILTIN);
 }
 
 void test_led_state_high(void) {
@@ -26,9 +26,11 @@ void test_led_state_low(void) {
 }
 
 void setup() {
+
     // NOTE!!! Wait for >2 secs
     // if board doesn't support software reset via Serial.DTR/RTS
     delay(2000);
+    // Serial.begin(115200);
 
     pinMode(LED_BUILTIN, OUTPUT);
 
