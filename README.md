@@ -1,26 +1,52 @@
 # esp32cam-lab
 
 ![schematics](schematics.png)
+![me_board](20241014_000426.png)
 
-## system_info
+Three ESP32-CAM devices (A, B, C) to create a multi-camera system with centralized data collection and distribution.
+
+## System Overview
+
+- Device A (Master):
+
+  - Captures QVGA grayscale camera feed
+  - Acts as SPI master
+  - Collects frames from devices B and C
+  - Provides combined camera feeds over WiFi
+
+- Devices B and C (Slaves):
+  - Capture QQVGA grayscale camera feeds
+  - Act as SPI slaves
+  - Send frames to device A
+
+## Key Features
+
+- Efficient use of all ESP32-CAM cores
+- SPI communication for inter-device data transfer
+- WiFi streaming of combined camera feeds
+- Independent channel provision for A, B, and C feeds
+
+## Project Structure
+
+### system_info
 
 ```
 [ 11773][I][system_info.cpp:20] printSystemInfo(): [example:system_info] ESP32 Chip Information:
 [ 11782][I][system_info.cpp:21] printSystemInfo(): [example:system_info] - Model: ESP32-D0WD-V3
 [ 11793][I][system_info.cpp:22] printSystemInfo(): [example:system_info] - Cores: 2
 [ 11802][I][system_info.cpp:24] printSystemInfo(): [example:system_info] - Features: WiFi/BT/BLE
-[ 11813][I][system_info.cpp:25] printSystemInfo(): [example:system_info] - Silicon revision: 3  
+[ 11813][I][system_info.cpp:25] printSystemInfo(): [example:system_info] - Silicon revision: 3
 [ 11824][I][system_info.cpp:30] printSystemInfo(): [example:system_info] Flash Memory: 4MB external
-[ 11835][I][system_info.cpp:33] printSystemInfo(): [example:system_info] CPU Frequency: 240MHz  
+[ 11835][I][system_info.cpp:33] printSystemInfo(): [example:system_info] CPU Frequency: 240MHz
 [ 11846][I][system_info.cpp:36] printSystemInfo(): [example:system_info] SRAM Size: 365 KB
 [ 11856][I][system_info.cpp:37] printSystemInfo(): [example:system_info] Available SRAM: 342 KB
 [ 11866][I][system_info.cpp:43] printSystemInfo(): [example:system_info] MAC Address: 08:A6:F7:48:70:AC
-[ 11878][E][system_info.cpp:70] printSystemInfo(): [example:system_info] Failed to get WiFi mode  
+[ 11878][E][system_info.cpp:70] printSystemInfo(): [example:system_info] Failed to get WiFi mode
 [ 11889][I][system_info.cpp:77] printSystemInfo(): [example:system_info] Battery Voltage: 0.00V
 [ 11899][I][system_info.cpp:80] printSystemInfo(): [example:system_info] System Uptime: 11 seconds
 ```
 
-## heavy_task_serial
+### heavy_task_serial
 
 ```
 [ 39164][I][heavy_task_serial.cpp:16] performHeavyTask(): [example:heavy_task_serial] Task1 completed. Result: 1783293664
@@ -29,7 +55,7 @@
 [ 39248][I][heavy_task_serial.cpp:37] loop(): [example:heavy_task_serial] --------------------
 ```
 
-## heavy_task_parallel
+### heavy_task_parallel
 
 ```
 [ 10230][I][heavy_task_parallel.cpp:23] performHeavyTa[s k1(0)2:3 0[]e[xIa]m[phleea:vhye_atvays_kt_apsakr_aplalreall.lceplp]: 2T3]sk2rcorpmetavyonscore [e Replet: 1avy2tas64parallel] Task1 completed on core 0. Result: 1783293664
@@ -39,7 +65,7 @@
 
 > notice mangled log by race condition
 
-## heavy_task_parallel_mutex
+### heavy_task_parallel_mutex
 
 ```
 Task2 completed on core 1. Result: 1783293664
@@ -48,7 +74,7 @@ Total execution time: 54 ms
 --------------------
 ```
 
-## math_fft_naive
+### math_fft_naive
 
 ```
 [  6958][I][math_fft_naive.cpp:48] heavy_task(): [example:math_fft_naive] Power at frequency 0: 0.0605
@@ -70,7 +96,7 @@ Total execution time: 54 ms
 [  7137][I][math_fft_naive.cpp:51] heavy_task(): [example:math_fft_naive] Time taken: 1629 milliseconds
 ```
 
-## math_fft_dsp
+### math_fft_dsp
 
 ```
 [  4888][I][math_fft_dsp.cpp:48] heavy_task(): [example:math_fft_dsp] Power at frequency 0: 0.0605
@@ -94,7 +120,7 @@ Total execution time: 54 ms
 
 > 1000x faster? the number is highly suspicious..
 
-## math_dotprod_naive
+### math_dotprod_naive
 
 ```
 [  3536][I][math_dotprod_naive.cpp:45] heavy_task(): [example:heavy_task_parallel] Dot product result = 260.929718
@@ -102,7 +128,7 @@ Total execution time: 54 ms
 [  3558][I][math_dotprod_naive.cpp:47] heavy_task(): [example:heavy_task_parallel] Operation took 56 microseconds
 ```
 
-## math_dotprod_dsp
+### math_dotprod_dsp
 
 ```
 [  3540][I][math_dotprod_dsp.cpp:44] heavy_task(): [example:heavy_task_parallel] Dot product result = 255.693115
@@ -110,7 +136,7 @@ Total execution time: 54 ms
 [  3562][I][math_dotprod_dsp.cpp:46] heavy_task(): [example:heavy_task_parallel] Operation took 17 microseconds
 ```
 
-## camera_throughput
+### camera_throughput
 
 PIXFORMAT_JPEG, FRAMESIZE_QQVGA
 Throughput: 50.00 FPS, Avg size of last 5 images: 3065.00 bytes
@@ -120,12 +146,13 @@ Throughput: 50.00 FPS, Avg size of last 5 images: 3065.00 bytes
 
 PIXFORMAT_GRAYSCALE
 
-## converter_throughput
+### converter_throughput
 
 QQVGA gray to rgb
 Current FPS: 177.62
 
 QQVGA gray to jpeg:
+
 ```
 Current FPS: 101.14, JPEG size: 2481 bytes
 Free heap: 337496 bytes
@@ -134,6 +161,7 @@ Free PSRAM: 4041819 bytes
 ```
 
 QVGA gray to jpeg:
+
 ```
 Current FPS: 25.36, JPEG size: 7345 bytes
 Free heap: 337496 bytes
@@ -141,26 +169,82 @@ Largest free block: 3932148 bytes
 Free PSRAM: 3984219 bytes
 ```
 
-### Supported Sensor
+### spi_hello1
 
-most of them capped at 12.5 fps even in qqvga. only jpeg give you 50 fps
-even QQVGA + grayscale is capped at 12.5 fps.
-OV2640:
+#### Story
 
-PIXFORMAT_RGB565,    // fails, 1, 0.6
-PIXFORMAT_YUV422,    // 
-PIXFORMAT_YUV420,    // 
-PIXFORMAT_GRAYSCALE, // 
-PIXFORMAT_JPEG,      // 
-PIXFORMAT_RGB888,    // 
-PIXFORMAT_RAW,       // 
-PIXFORMAT_RGB444,    // 
-PIXFORMAT_RGB555,    // 
+1. Master sends characters over SPI
+2. Slave receives and prints them
 
+master:
 
-| model   | max resolution | color type | output format                                                | Len Size |
-| ------- | -------------- | ---------- | ------------------------------------------------------------ | -------- |
-| OV2640  | 1600 x 1200    | color      | YUV(422/420)/YCbCr422<br>RGB565/555<br>8-bit compressed data<br>8/10-bit Raw RGB data | 1/4"     |
-| OV3660  | 2048 x 1536    | color      | raw RGB data<br/>RGB565/555/444<br/>CCIR656<br/>YCbCr422<br/>compression | 1/5"     |
-| OV5640  | 2592 x 1944    | color      | RAW RGB<br/>RGB565/555/444<br/>CCIR656<br/>YUV422/420<br/>YCbCr422<br/>compression | 1/4"     |
-| OV7670  | 640 x 480      | color      | Raw Bayer RGB<br/>Processed Bayer RGB<br>YUV/YCbCr422<br>GRB422<br>RGB565/555 | 1/6"     |
+```
+[  8609][I][spi_hello1_master.cpp:68] loop(): [example:spi_hello1_master] Transmitted: yo
+[  9617][I][spi_hello1_master.cpp:68] loop(): [example:spi_hello1_master] Transmitted: yo
+[ 10625][I][spi_hello1_master.cpp:68] loop(): [example:spi_hello1_master] Transmitted: yo
+```
+
+slave:
+
+```
+[  8613][I][spi_hello1_slave.cpp:55] loop(): [example:spi_hello1_slave] Received: yo
+[  9620][I][spi_hello1_slave.cpp:55] loop(): [example:spi_hello1_slave] Received: yo
+[ 10629][I][spi_hello1_slave.cpp:55] loop(): [example:spi_hello1_slave] Received: yo
+```
+
+### spi_hello2
+
+#### Story
+
+1. Slave sends characters over SPI
+2. Master receives and prints them
+
+master:
+
+```
+[ 32824][I][spi_hello2_master.cpp:72] loop(): [example:spi_hello2_master] Received: Sent by slave - 20
+[ 33834][I][spi_hello2_master.cpp:72] loop(): [example:spi_hello2_master] Received: Sent by slave - 21
+[ 34844][I][spi_hello2_master.cpp:72] loop(): [example:spi_hello2_master] Received: ~��
+[ 35852][I][spi_hello2_master.cpp:72] loop(): [example:spi_hello2_master] Received:
+[ 36860][I][spi_hello2_master.cpp:72] loop(): [example:spi_hello2_master] Received: Sent by slave - 23
+[ 37870][I][spi_hello2_master.cpp:72] loop(): [example:spi_hello2_master] Received: Sent by slave - 24
+[ 38880][I][spi_hello2_master.cpp:72] loop(): [example:spi_hello2_master] Received: S�@�
+```
+
+slave:
+
+```
+[ 31817][I][spi_hello2_slave.cpp:60] loop(): [example:spi_hello2_slave] Transmitted: Sent by slave - 20
+[ 33833][I][spi_hello2_slave.cpp:60] loop(): [example:spi_hello2_slave] Transmitted: Sent by slave - 21
+[ 34843][I][spi_hello2_slave.cpp:60] loop(): [example:spi_hello2_slave] Transmitted: Sent by slave - 22
+[ 36859][I][spi_hello2_slave.cpp:60] loop(): [example:spi_hello2_slave] Transmitted: Sent by slave - 23
+[ 37869][I][spi_hello2_slave.cpp:60] loop(): [example:spi_hello2_slave] Transmitted: Sent by slave - 24
+[ 38879][I][spi_hello2_slave.cpp:60] loop(): [example:spi_hello2_slave] Transmitted: Sent by slave - 25
+```
+
+### spi_hello3
+
+#### Story
+
+1. Slave captures camera frames and sends the framebuffer to the master over SPI every frame
+2. Master maintains an HTTP endpoint over WiFi, presenting the framebuffer from the slave
+
+---
+
+## Performance Notes
+
+- Frame rate limitations:
+  - Most camera modes are capped at 12.5 fps, even in QQVGA resolution
+  - This includes QQVGA + grayscale mode
+  - Only JPEG mode can achieve up to 50 fps
+
+https://github.com/espressif/arduino-esp32/issues/5834
+While outputting 5/10/20MHz master clock from LEDC or I2S to peripheral device, the Wifi throughput gets worse.
+
+https://github.com/espressif/esp32-camera/issues/15#issuecomment-455886304
+i have disabled pixel clock divider for CIF, disabled clock prescaler and enabled clock doubler
+REG32_CIF = 0x09
+{CLKRC, 0x00 | CLKRC_2X}
+//XCLK 20MHz or 10MHz for OV2640 double FPS (Experimental) 
+
+esp32-cam-fpv: dma bypass, reduced latency stream
