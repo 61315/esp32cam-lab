@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "esp_camera.h"
 #include "esp_http_server.h"
+#include "esp_log.h"
 #include "esp_timer.h"
 #include "fb_gfx.h"
 #include "img_converters.h"
@@ -8,13 +9,17 @@
 #include "soc/soc.h"          // disable brownout problems
 #include <WiFi.h>
 
-// Replace with your network credentials
+static const char* TAG = "stream_over_wifi";
+
+// const char* ssid     = "TAMU_IoT";
 const char* ssid     = "TAMU_IoT";
-const char* password = "";
+const char* password = "22222222";
 
 #define PART_BOUNDARY "123456789000000000000987654321"
 
 #define CAMERA_MODEL_AI_THINKER
+#define BOARD_ESP32CAM_AITHINKER
+
 #define PWDN_GPIO_NUM 32
 #define RESET_GPIO_NUM -1
 #define XCLK_GPIO_NUM 0
@@ -235,30 +240,29 @@ void setup() {
     config.pixel_format = PIXFORMAT_JPEG;
 
     config.frame_size   = FRAMESIZE_QQVGA;
-    config.jpeg_quality = 8;
-    config.fb_count     = 3;
-    config.fb_location  = CAMERA_FB_IN_DRAM;
+    config.jpeg_quality = 20;
+    config.fb_count     = 1;
+    config.fb_location  = CAMERA_FB_IN_PSRAM;
 
-    // Camera init
+    // camera init
     esp_err_t err = esp_camera_init(&config);
     if (err != ESP_OK) {
-        Serial.printf("Camera init failed with error 0x%x", err);
+        ESP_LOGI(TAG, "Camera init failed with error 0x%x", err);
         //    return;
     }
+
     // Wi-Fi connection
-    Serial.print("WiFiConnecting...\n");
+    ESP_LOGI(TAG, "WiFiConnecting...");
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
-        Serial.print(".");
+        ESP_LOGI(TAG, ".");
     }
-    Serial.println("");
-    Serial.println("WiFi connected");
+    ESP_LOGI(TAG, "WiFi connected");
 
-    Serial.print("Camera Stream Ready! Go to: http://");
-    Serial.println(WiFi.localIP());
+    ESP_LOGI(TAG, "Camera Stream Ready! Go to: http://%s", WiFi.localIP().toString().c_str());
 
-    // Start streaming web server
+    // start streaming web server
     startCameraServer();
 }
 

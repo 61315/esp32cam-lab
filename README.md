@@ -46,6 +46,39 @@ Three ESP32-CAM devices (A, B, C) to create a multi-camera system with centraliz
 [ 11899][I][system_info.cpp:80] printSystemInfo(): [example:system_info] System Uptime: 11 seconds
 ```
 
+### basic_wifi_server
+
+#### Story
+
+1. Creates a WiFi Access Point (AP) with SSID "ESP32CAM-AP"
+2. Hosts a simple web server showing system uptime
+3. Auto-refreshes every second to show real-time updates
+
+```
+Access Point Started
+IP Address: 192.168.4.1
+HTTP server started
+```
+
+### basic_wifi_endpoint
+
+![basic-wifi-endpoint](media/basic_wifi_endpoint.png)
+
+#### Story
+
+1. Connects to an existing WiFi network as a client
+2. Hosts a status page showing WiFi details (SSID, IP, RSSI, MAC)
+3. Auto-reconnects if connection is lost
+4. Updates status every 5 seconds
+
+```
+Connecting to WiFi... (Attempt 1/10)
+Connected to WiFi successfully!
+IP Address: 192.168.1.184
+Signal Strength (RSSI): -62 dBm
+HTTP server started
+```
+
 ### heavy_task_serial
 
 ```
@@ -229,6 +262,85 @@ slave:
 1. Slave captures camera frames and sends the framebuffer to the master over SPI every frame
 2. Master maintains an HTTP endpoint over WiFi, presenting the framebuffer from the slave
 
+### generate_bitmap
+
+#### Story
+
+1. creates an empty grayscale bitmap buffer (160x120 qqvga)
+2. every second:
+   - draws animated border with changing color
+   - draws bouncing "esp32" text
+   - draws diagonal line
+   - draws circle moving in circular pattern
+
+generates test grayscale bitmap with moving elements (text, circle, border)
+
+```
+[  3536][I][generate_bitmap.cpp:45] loop(): frame generated at 3536 ms
+[  3546][I][generate_bitmap.cpp:48] loop(): first few bytes: 0 0 0 128 128 128 255 255 255 200
+[  4558][I][generate_bitmap.cpp:45] loop(): frame generated at 4558 ms
+[  4569][I][generate_bitmap.cpp:48] loop(): first few bytes: 0 0 128 128 255 255 255 200 200 128
+```
+
+### bitmap_over_wifi
+
+![bitmap-over-wifi](media/bitmap_over_wifi.png)
+
+#### Story
+
+1. creates animated grayscale bitmap (160x120 qqvga) in memory
+2. converts bitmap to jpeg
+3. serves jpeg stream over http endpoint
+4. browser can view the animated bitmap at `http://<esp32-ip>/stream`
+
+serves test bitmap as mjpeg stream over wifi
+
+```
+stream ready on http://192.168.0.123/stream
+converting grayscale to jpeg... size: 2850 bytes
+converting grayscale to jpeg... size: 2867 bytes
+converting grayscale to jpeg... size: 2859 bytes
+```
+
+### spi_bitmap1
+
+![spi-bitmap1](media/spi_bitmap1.gif)
+> Bitmap data originating from slave device, transmitted to master via SPI interface, and wirelessly served by master node
+
+#### Story
+
+1. slave:
+   - generates animated grayscale bitmap (160x120 qqvga)
+   - converts bitmap to jpeg
+   - first sends jpeg size (4 bytes)
+   - then sends jpeg data over spi
+2. master:
+   - receives jpeg size and data from slave
+   - serves received jpeg as mjpeg stream over wifi
+   - browser can view the stream at `http://<esp32-ip>/stream`
+
+slave output:
+
+```
+spi slave initialized
+Frame 6273 sent, size: 2086 bytes
+Frame 6274 sent, size: 2048 bytes
+Frame 6275 sent, size: 2047 bytes
+Frame 6276 sent, size: 2060 bytes
+```
+
+master output:
+
+```
+wifi connected
+ip address: 192.168.0.123
+stream ready on http://192.168.0.123/stream
+[458180][E][spi_bitmap1_master.cpp:80] stream_handler(): [example:spi_bitmap_master] Invalid JPEG size: 0
+[458189][E][spi_bitmap1_master.cpp:80] stream_handler(): [example:spi_bitmap_master] Invalid JPEG size: 0
+[458206][I][spi_bitmap1_master.cpp:49] update_fps(): [example:spi_bitmap_master] Current FPS: 13.5
+[458216][E][spi_bitmap1_master.cpp:80] stream_handler(): [example:spi_bitmap_master] Invalid JPEG size: 0
+```
+
 ---
 
 ## Performance Notes
@@ -245,6 +357,6 @@ https://github.com/espressif/esp32-camera/issues/15#issuecomment-455886304
 i have disabled pixel clock divider for CIF, disabled clock prescaler and enabled clock doubler
 REG32_CIF = 0x09
 {CLKRC, 0x00 | CLKRC_2X}
-//XCLK 20MHz or 10MHz for OV2640 double FPS (Experimental) 
+//XCLK 20MHz or 10MHz for OV2640 double FPS (Experimental)
 
 esp32-cam-fpv: dma bypass, reduced latency stream

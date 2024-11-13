@@ -34,7 +34,7 @@ void setup() {
     devcfg.address_bits                  = 0;
     devcfg.dummy_bits                    = 0;
     devcfg.clock_speed_hz                = 5000000;
-    devcfg.duty_cycle_pos                = 128; // 50% duty cycle
+    devcfg.duty_cycle_pos                = 32; // 128 = 50% duty cycle
     devcfg.mode                          = 0;
     devcfg.spics_io_num                  = GPIO_CS;
     devcfg.cs_ena_posttrans              = 3; // Keep the CS low 3 cycles after transaction
